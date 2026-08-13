@@ -1,0 +1,215 @@
+{
+  "name": "Veille Alimendo - hebdomadaire",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "f08b9111-7a71-4b78-8979-b98c062c8b2f",
+      "name": "Lancer la veille",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Liste des flux RSS à surveiller.\nconst flux = [\n  { source: \"CNIL\",                     url: \"https://www.cnil.fr/fr/rss.xml\" },\n  { source: \"ANSES - Alimentation\",     url: \"https://www.anses.fr/fr/theme-alimentation.rss\" },\n  { source: \"HAS - Recommandations\",    url: \"https://www.has-sante.fr/feed/Rss2.jsp?id=p_3081452\" },\n  { source: \"HAS - Dispositifs medicaux\", url: \"https://www.has-sante.fr/feed/Rss2.jsp?id=p_3081446\" },\n  // A remplacer \"ORG/REPO\" par depot de stack une fois figee :\n  { source: \"GitHub - stack (a completer)\", url: \"https://github.com/ORG/REPO/releases.atom\" }\n];\nreturn flux.map(f => ({ json: f }));\n"
+      },
+      "id": "d65dbd76-e2bd-45ed-91aa-262ab02bf59a",
+      "name": "Flux a surveiller",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "id": "b8728e25-1119-43ca-86bf-bea2b18d80e5",
+      "name": "Lire les flux RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        0
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filtre les articles des 7 derniers jours et construit un corpus texte\n// compact, pour un seul appel IA (economique et rapide).\nconst items = $input.all();\nconst now = Date.now();\nconst SEPT_JOURS = 7 * 24 * 60 * 60 * 1000;\n\nconst domaineVersSource = {\n  \"cnil.fr\": \"CNIL\",\n  \"anses.fr\": \"ANSES\",\n  \"has-sante.fr\": \"HAS\",\n  \"github.com\": \"GitHub\"\n};\n\nfunction sourceDepuisLien(lien) {\n  try {\n    const host = new URL(lien).hostname.replace(/^www\\./, \"\");\n    for (const d in domaineVersSource) if (host.includes(d)) return domaineVersSource[d];\n    return host;\n  } catch (e) { return \"Source inconnue\"; }\n}\n\nconst recents = items\n  .map(i => i.json)\n  .filter(a => {\n    const t = new Date(a.isoDate || a.pubDate || 0).getTime();\n    return t && (now - t) <= SEPT_JOURS;\n  });\n\nconst lignes = recents.map((a, n) => {\n  const src = sourceDepuisLien(a.link || \"\");\n  const date = String(a.isoDate || a.pubDate || \"\").slice(0, 10);\n  const extrait = String(a.contentSnippet || a.content || \"\")\n    .replace(/\\s+/g, \" \").trim().slice(0, 600);\n  return `### Article ${n + 1}\nSource: ${src}\nDate: ${date}\nTitre: ${a.title || \"\"}\nLien: ${a.link || \"\"}\nExtrait: ${extrait}`;\n}).join(\"\\n\\n\");\n\nconst fmt = ms => new Date(ms).toISOString().slice(0, 10);\n\nreturn [{\n  json: {\n    count: recents.length,\n    periode: fmt(now - SEPT_JOURS) + \" -> \" + fmt(now),\n    corpus: lignes || \"Aucun article publie dans les 7 derniers jours.\"\n  }\n}];\n"
+      },
+      "id": "c526ff0c-4860-4913-bd3c-164ccbc5d837",
+      "name": "Filtrer 7 jours + corpus",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es l'assistant de veille du projet Alimendo (application d'information nutritionnelle pour personnes atteintes d'endometriose). Tu analyses des articles collectes par flux RSS.\n\nPeriode couverte : {{ $json.periode }}\nNombre d'articles : {{ $json.count }}\n\nTROIS AXES DE VEILLE :\n- Axe A - Service d'IA integre (evolutions techniques, changelog, CGU des fournisseurs de modeles).\n- Axe B - Cadre reglementaire (donnees de sante / CNIL, AI Act, allegations nutritionnelles / ANSES, dispositifs medicaux / HAS, accessibilite / RGAA).\n- Axe C - Etat de l'art scientifique (endometriose, alimentation, inflammation) alimentant la base RAG.\n\nCONSIGNES STRICTES :\n1. Fonde chaque analyse UNIQUEMENT sur le texte fourni. N'invente aucune information absente des extraits.\n2. Ne formule JAMAIS de conseil medical, meme implicite. Tu decris ce que dit une source, tu ne recommandes rien sur le plan sante.\n3. Note la pertinence de 1 a 3 (1 = anecdotique, 2 = a surveiller, 3 = impact direct sur le projet).\n4. Ne retiens dans \"items\" que les articles de pertinence >= 2. Liste les titres ecartes dans \"ecartes\".\n5. Classe chaque article retenu dans l'axe A, B ou C.\n\nReponds EXCLUSIVEMENT par un objet JSON valide, sans texte avant ou apres, sans balises de code. Schema :\n{\n  \"resume\": \"2 a 3 phrases de synthese globale de la semaine\",\n  \"items\": [\n    {\"axe\":\"A|B|C\",\"titre\":\"...\",\"source\":\"...\",\"date\":\"AAAA-MM-JJ\",\"lien\":\"...\",\"pertinence\":2,\"resume\":\"1 a 2 phrases factuelles\",\"impact_projet\":\"aucun|a surveiller|action requise\"}\n  ],\n  \"ecartes\": [\"titre ecarte 1\",\"titre ecarte 2\"]\n}\n\nARTICLES :\n{{ $json.corpus }}"
+      },
+      "id": "4163fe13-046e-4f2e-a7ba-07ee64ff6e5f",
+      "name": "Synthese IA",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        928,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-flash-latest",
+        "options": {}
+      },
+      "id": "43146b2d-5f7b-40f7-8652-9be67f5fbd0b",
+      "name": "Google Gemini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        928,
+        208
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "PIjGpMRb5yEI1A5A",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transforme la reponse JSON du modele en page HTML accessible (RGAA-friendly).\nconst raw = $json.text || $json.output || \"\";\nlet clean = String(raw).trim()\n  .replace(/^```(?:json)?/i, \"\")\n  .replace(/```$/, \"\")\n  .trim();\n\nlet data = null;\ntry { data = JSON.parse(clean); } catch (e) { data = null; }\n\nconst esc = s => String(s ?? \"\")\n  .replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\")\n  .replace(/>/g, \"&gt;\").replace(/\"/g, \"&quot;\");\n\nconst aujourdHui = new Date().toISOString().slice(0, 10);\nconst axeNom = {\n  A: \"Axe A \\u2014 Service d'IA int\\u00e9gr\\u00e9\",\n  B: \"Axe B \\u2014 Cadre r\\u00e9glementaire\",\n  C: \"Axe C \\u2014 \\u00c9tat de l'art scientifique\"\n};\nconst impactLibelle = {\n  \"aucun\": \"Aucun impact\",\n  \"\\u00e0 surveiller\": \"\\u00c0 surveiller\",\n  \"action requise\": \"Action requise\"\n};\n\nlet corps = \"\";\nif (!data) {\n  corps = `<section><h2>Synth\\u00e8se brute</h2>\n  <p>Le format JSON n'a pas pu \\u00eatre analys\\u00e9. Contenu renvoy\\u00e9 par le mod\\u00e8le\\u00a0:</p>\n  <pre>${esc(clean)}</pre></section>`;\n} else {\n  corps += `<section aria-labelledby=\"resume-titre\">\n    <h2 id=\"resume-titre\">R\\u00e9sum\\u00e9 de la semaine</h2>\n    <p>${esc(data.resume)}</p></section>`;\n\n  const parAxe = { A: [], B: [], C: [] };\n  (data.items || []).forEach(it => {\n    (parAxe[it.axe] || (parAxe[it.axe] = [])).push(it);\n  });\n\n  [\"A\", \"B\", \"C\"].forEach(ax => {\n    const liste = parAxe[ax] || [];\n    if (!liste.length) return;\n    corps += `<section aria-labelledby=\"axe-${ax}\">\n      <h2 id=\"axe-${ax}\">${esc(axeNom[ax])}</h2>`;\n    liste.forEach(it => {\n      corps += `<article>\n        <h3>${esc(it.titre)}</h3>\n        <p class=\"meta\">\n          <span>Source\\u00a0: ${esc(it.source)}</span> \\u2014\n          <time datetime=\"${esc(it.date)}\">${esc(it.date)}</time> \\u2014\n          <span class=\"impact\">Impact\\u00a0: ${esc(impactLibelle[it.impact_projet] || it.impact_projet)}</span> \\u2014\n          <span>Pertinence\\u00a0: ${esc(it.pertinence)}/3</span>\n        </p>\n        <p>${esc(it.resume)}</p>`;\n      if (it.lien) {\n        corps += `<p><a href=\"${esc(it.lien)}\">Consulter «\\u00a0${esc(it.titre)}\\u00a0» sur le site de la source</a></p>`;\n      }\n      corps += `</article>`;\n    });\n    corps += `</section>`;\n  });\n\n  if ((data.ecartes || []).length) {\n    corps += `<section aria-labelledby=\"ecartes-titre\">\n      <h2 id=\"ecartes-titre\">Articles \\u00e9cart\\u00e9s (hors p\\u00e9rim\\u00e8tre ou faible pertinence)</h2><ul>`;\n    data.ecartes.forEach(t => corps += `<li>${esc(t)}</li>`);\n    corps += `</ul></section>`;\n  }\n}\n\nconst html = `<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>Synth\\u00e8se de veille \\u2014 Alimendo \\u2014 ${aujourdHui}</title>\n<style>\n  body { font-family: system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif; max-width: 60rem; margin: 0 auto; padding: 1.5rem; color: #1a1a1a; background: #fff; line-height: 1.6; }\n  h1 { font-size: 1.75rem; border-bottom: 3px solid #7a1f5c; padding-bottom: .5rem; }\n  h2 { font-size: 1.3rem; margin-top: 2rem; color: #7a1f5c; }\n  h3 { font-size: 1.1rem; margin-bottom: .25rem; }\n  article { border-left: 4px solid #c9c9c9; padding-left: 1rem; margin: 1.25rem 0; }\n  .meta { font-size: .9rem; color: #3a3a3a; margin: .25rem 0 .5rem; }\n  .impact { font-weight: 600; }\n  a { color: #0b4f96; }\n  a:focus, a:hover { outline: 2px solid #0b4f96; outline-offset: 2px; }\n  footer { margin-top: 3rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: .85rem; color: #444; }\n  pre { white-space: pre-wrap; background: #f4f4f4; padding: 1rem; border-radius: 4px; }\n</style>\n</head>\n<body>\n<header>\n  <h1>Synth\\u00e8se de veille \\u2014 Alimendo</h1>\n  <p>Semaine du ${aujourdHui}. Projet \\u00e9tudiant \\u2014 veille technique et r\\u00e9glementaire (comp\\u00e9tences A3 / C6).</p>\n</header>\n<main>\n${corps}\n</main>\n<footer>\n  <p>Document g\\u00e9n\\u00e9r\\u00e9 automatiquement \\u00e0 partir des flux RSS surveill\\u00e9s, puis relu manuellement.\n  Les informations proviennent des sources cit\\u00e9es ; elles ne constituent pas un conseil m\\u00e9dical.</p>\n</footer>\n</body>\n</html>`;\n\nreturn [{ json: { html, fichier: `veille-${aujourdHui}.html` } }];\n"
+      },
+      "id": "b200ad89-fb58-4f4e-8063-0dbc9ae33077",
+      "name": "Generer HTML accessible",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "html",
+        "options": {
+          "fileName": "={{ $json.fichier }}"
+        }
+      },
+      "id": "dee3e6de-b641-4dd8-88c8-49ea985298e7",
+      "name": "Fichier HTML",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1408,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Lancer la veille": {
+      "main": [
+        [
+          {
+            "node": "Flux a surveiller",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flux a surveiller": {
+      "main": [
+        [
+          {
+            "node": "Lire les flux RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les flux RSS": {
+      "main": [
+        [
+          {
+            "node": "Filtrer 7 jours + corpus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrer 7 jours + corpus": {
+      "main": [
+        [
+          {
+            "node": "Synthese IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Synthese IA": {
+      "main": [
+        [
+          {
+            "node": "Generer HTML accessible",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Synthese IA",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generer HTML accessible": {
+      "main": [
+        [
+          {
+            "node": "Fichier HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "811f2709-44b0-455d-990c-a9d56237adc2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "db1e19135565ae4c11c6d69cebb477d5fa8387d7525b70e3108282b00a32f05f"
+  },
+  "nodeGroups": [],
+  "id": "f6gG1jXNVls2J71X",
+  "tags": []
+}
