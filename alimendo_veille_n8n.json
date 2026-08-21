@@ -1,0 +1,345 @@
+{
+  "name": "ANSES scraping (a fusionner)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "f08b9111-7a71-4b78-8979-b98c062c8b2f",
+      "name": "Lancer la veille",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -784,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Liste des flux RSS à surveiller.\nconst flux = [\n  { source: \"CNIL\",                     url: \"https://www.cnil.fr/fr/rss.xml\" },\n  { source: \"HAS - Recommandations\",    url: \"https://www.has-sante.fr/feed/Rss2.jsp?id=p_3081452\" },\n  { source: \"HAS - Dispositifs medicaux\", url: \"https://www.has-sante.fr/feed/Rss2.jsp?id=p_3081446\" },\n  { source: \"PubMed - Endometriosis AND (diet OR nutrition OR inflammation)\", url: \"https://pubmed.ncbi.nlm.nih.gov/rss/search/1buXLhBHRRRx2fCp9fR-aEfCojog81igfn6XkaYUsBU280OsPz/?limit=15&utm_campaign=pubmed-2&fc=20260821042913\" },\n  { source: \"Santé Public France - Nutrition\", url: \"https://www.santepubliquefrance.fr/rss/1065\" },\n  { source: \"CEPD / CNIL - Reglementation\", url: \"https://www.edpb.europa.eu/feed/news_fr\" },\n  { source: \"Numerique.gouv - RGAA\", url: \"https://www.numerique.gouv.fr/actualites/rss/\" },\n  \n  { source: \"ScienceDaily - Nutrition\", url: \"https://www.sciencedaily.com/rss/health_medicine/nutrition.xml\" },\n  { source: \"ScienceDaily - Santé des femmes\", url: \"https://www.sciencedaily.com/rss/health_medicine/womens_health.xml\" },\n\n  { source: \"Euractiv - IA et Europe\", url: \"https://www.euractiv.com/sections/tech/feed/\" },\n  { source: \"Siècle digital - Actualité IA\", url: \"https://siecledigital.fr/category/intelligence-artificielle/feed/\" },\n   { source: \"marktechpost - IA open-source\", url: \"https://www.marktechpost.com/category/technology/open-source/feed/\" },\n  { source: \"huggingface - hub modèle\", url: \"https://huggingface.co/blog/feed.xml\" },\n\n  \n  { source: \"GitHub - stack VLM\", url: \"https://github.com/QwenLM/Qwen2.5-VL/releases.atom\" },\n  { source: \"GitHub - stack n8n\", url: \"https://github.com/n8n-io/n8n/releases.atom\" },\n  { source: \"GitHub - stack chromadb\", url: \"https://github.com/chroma-core/chroma/releases.atom\" },\n  { source: \"GitHub - stack RAG\", url: \"https://github.com/langchain-ai/langchain/releases.atom\" }\n];\nreturn flux.map(f => ({ json: f }));\n"
+      },
+      "id": "d65dbd76-e2bd-45ed-91aa-262ab02bf59a",
+      "name": "Flux a surveiller",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        -448
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "id": "b8728e25-1119-43ca-86bf-bea2b18d80e5",
+      "name": "Lire les flux RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        144,
+        -448
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filtre les articles des 7 derniers jours et construit un corpus texte\n// compact, pour un seul appel IA (economique et rapide).\nconst items = $input.all();\nconst now = Date.now();\nconst SEPT_JOURS = 7 * 24 * 60 * 60 * 1000;\n\nconst domaineVersSource = {\n  \"cnil.fr\": \"CNIL\",\n  \"anses.fr\": \"ANSES\",\n  \"has-sante.fr\": \"HAS\",\n  \"github.com\": \"GitHub\"\n};\n\nfunction sourceDepuisLien(lien) {\n  try {\n    const host = new URL(lien).hostname.replace(/^www\\./, \"\");\n    for (const d in domaineVersSource) if (host.includes(d)) return domaineVersSource[d];\n    return host;\n  } catch (e) { return \"Source inconnue\"; }\n}\n\nconst recents = items\n  .map(i => i.json)\n  .filter(a => {\n    const t = new Date(a.isoDate || a.pubDate || 0).getTime();\n    return t && (now - t) <= SEPT_JOURS;\n  });\n\nconst lignes = recents.map((a, n) => {\n  const src = sourceDepuisLien(a.link || \"\");\n  const date = String(a.isoDate || a.pubDate || \"\").slice(0, 10);\n  const extrait = String(a.contentSnippet || a.content || \"\")\n    .replace(/\\s+/g, \" \").trim().slice(0, 600);\n  return `### Article ${n + 1}\nSource: ${src}\nDate: ${date}\nTitre: ${a.title || \"\"}\nLien: ${a.link || \"\"}\nExtrait: ${extrait}`;\n}).join(\"\\n\\n\");\n\nconst fmt = ms => new Date(ms).toISOString().slice(0, 10);\n\nreturn [{\n  json: {\n    count: recents.length,\n    periode: fmt(now - SEPT_JOURS) + \" -> \" + fmt(now),\n    corpus: lignes || \"Aucun article publie dans les 7 derniers jours.\"\n  }\n}];\n"
+      },
+      "id": "c526ff0c-4860-4913-bd3c-164ccbc5d837",
+      "name": "Filtrer 7 jours + corpus",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es l'assistant de veille du projet Alimendo : une application d'information (et non un dispositif médical) destinée aux personnes atteintes d'endométriose. Elle évalue le caractère pro/anti-inflammatoire d'un aliment via un score inspiré du Dietary Inflammatory Index, et propose un chatbot RAG sourcé. Le projet est une preuve de concept menée en autonomie, qui ne stocke aucune donnée de santé. Ton rôle est de TRIER et METTRE EN FORME des articles collectés par flux RSS, pas de décider à la place de la veilleuse.\n\nPériode couverte : {{ $json.periode }}\nNombre d'articles : {{ $json.count }}\n\nTROIS AXES (par ordre de priorité pour ce projet) :\n- Axe B — Cadre réglementaire (PILIER). Protection des données de santé (RGPD, CNIL, CEPD/EDPB), règlement européen sur l'IA (AI Act), allégations nutritionnelles et de santé, statut de dispositif médical (HAS), accessibilité numérique (RGAA). C'est l'axe le plus critique : une évolution ici peut rendre l'application non conforme.\n- Axe C — État de l'art scientifique. Lien alimentation / inflammation / endométriose. Sa fonction précise : détecter toute publication susceptible de CONFIRMER, NUANCER ou CONTREDIRE un score du référentiel d'inflammation, ou d'enrichir le corpus du chatbot.\n- Axe A — Service d'IA intégré (l'« outil »). Évolutions de Qwen (VLM), DeepSeek, du RAG (LangChain, ChromaDB), de n8n ; nouvelles versions, dépréciations, et surtout changements de licence ou de CGU pouvant restreindre un usage médical.\n\nAUTORITÉ DES SOURCES (détermine la pertinence maximale) :\n- Sources primaires / institutionnelles (autorité forte) : cnil.fr, has-sante.fr, edpb.europa.eu, anses.fr, santepubliquefrance.fr, pubmed, europa.eu, les dépôts GitHub officiels (releases), huggingface.co. Une position ou décision officielle de ces sources peut atteindre la pertinence 3.\n- Sources média / secondaires (détection, autorité variable) : sciencedaily, marktechpost, the-decoder, euractiv, siecledigital. Elles servent à REPÉRER une actualité ; elles sont plafonnées à la pertinence 2, sauf si elles rapportent une décision réglementaire directement applicable ou une sortie/changement de licence confirmé d'un outil de la stack — dans ce cas 3, avec \"a_verifier\": true.\n\nRÈGLES DE PERTINENCE (1 à 3) :\n- 3 = impact direct : source primaire rapportant une décision/publication applicable au projet (décision CNIL/CEPD sur données de santé ou IA ; recommandation HAS sur l'endométriose ou un dispositif médical numérique ; jalon de l'AI Act ; release ou changement de licence d'un outil de la stack ; méta-analyse / revue systématique / essai contrôlé randomisé sur alimentation-inflammation-endométriose).\n- 2 = à surveiller : sujet pertinent mais indirect, ou source média/secondaire sur un thème des axes.\n- 1 = anecdotique ou hors périmètre.\nNe retiens dans \"items\" que les articles de pertinence ≥ 2. Liste les titres écartés dans \"ecartes\".\n\nRÈGLE SPÉCIFIQUE AXE C (niveau de preuve) :\nRenseigne \"niveau_preuve\" quand c'est identifiable (méta-analyse, revue systématique, essai contrôlé randomisé, observationnelle, autre). Pondère la pertinence par le niveau de preuve : une méta-analyse pèse plus qu'une étude observationnelle sur petit échantillon. SIGNALE explicitement une contradiction entre une étude et une autre plutôt que de la lisser. N'affirme jamais qu'un lien est établi si les sources ne le disent pas.\n\nCONTRAINTES ÉDITORIALES (strictes) :\n1. Fonde chaque analyse UNIQUEMENT sur le texte fourni. N'invente rien. Si un extrait est trop court pour juger, note-le et classe en pertinence 1.\n2. Ne formule JAMAIS de conseil médical, même implicite. Tu décris ce que dit une source, tu ne recommandes rien.\n3. Dans tes résumés, n'emploie aucun vocabulaire moralisant ou anxiogène sur l'alimentation (pas de « bon/mauvais aliment », « interdit », « à bannir »). Reste factuel et neutre — cette application vise à informer sans induire de comportement alimentaire restrictif.\n4. Rédige tous les résumés en français, même à partir de sources en anglais.\n5. Si plusieurs articles couvrent le même événement, fusionne-les en un seul item et privilégie la source la plus primaire.\n6. Si aucun article ne dépasse la pertinence 2, renvoie \"items\": [] et rédige un \"resume\" indiquant clairement qu'aucune actualité significative n'a été identifiée sur la période (une semaine calme documentée est une information valide).\n\nRéponds EXCLUSIVEMENT par un objet JSON valide, sans texte avant ou après, sans balises de code. Schéma :\n{\n  \"resume\": \"2 à 3 phrases de synthèse globale de la période\",\n  \"items\": [\n    {\n      \"axe\": \"A|B|C\",\n      \"titre\": \"...\",\n      \"source\": \"...\",\n      \"date\": \"AAAA-MM-JJ\",\n      \"lien\": \"...\",\n      \"pertinence\": 2,\n      \"resume\": \"1 à 2 phrases factuelles, en français\",\n      \"impact_projet\": \"aucun|à surveiller|action requise\",\n      \"type_source\": \"primaire|media|associative\",\n      \"a_verifier\": false,\n      \"niveau_preuve\": \"méta-analyse|revue systématique|essai contrôlé|observationnelle|autre|non précisé\"\n    }\n  ],\n  \"ecartes\": [\"titre écarté 1\", \"titre écarté 2\"]\n}\n\nARTICLES :\n{{ $json.corpus }}"
+      },
+      "id": "4163fe13-046e-4f2e-a7ba-07ee64ff6e5f",
+      "name": "Synthese IA",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        928,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.6-flash",
+        "options": {}
+      },
+      "id": "43146b2d-5f7b-40f7-8652-9be67f5fbd0b",
+      "name": "Google Gemini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        928,
+        208
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "PIjGpMRb5yEI1A5A",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transforme la reponse JSON du modele en page HTML accessible (RGAA-friendly).\nconst raw = $json.text || $json.output || \"\";\nlet clean = String(raw).trim()\n  .replace(/^```(?:json)?/i, \"\")\n  .replace(/```$/, \"\")\n  .trim();\n\nlet data = null;\ntry { data = JSON.parse(clean); } catch (e) { data = null; }\n\nconst esc = s => String(s ?? \"\")\n  .replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\")\n  .replace(/>/g, \"&gt;\").replace(/\"/g, \"&quot;\");\n\nconst aujourdHui = new Date().toISOString().slice(0, 10);\nconst axeNom = {\n  A: \"Axe A \\u2014 Service d'IA int\\u00e9gr\\u00e9\",\n  B: \"Axe B \\u2014 Cadre r\\u00e9glementaire\",\n  C: \"Axe C \\u2014 \\u00c9tat de l'art scientifique\"\n};\nconst impactLibelle = {\n  \"aucun\": \"Aucun impact\",\n  \"\\u00e0 surveiller\": \"\\u00c0 surveiller\",\n  \"action requise\": \"Action requise\"\n};\n\nlet corps = \"\";\nif (!data) {\n  corps = `<section><h2>Synth\\u00e8se brute</h2>\n  <p>Le format JSON n'a pas pu \\u00eatre analys\\u00e9. Contenu renvoy\\u00e9 par le mod\\u00e8le\\u00a0:</p>\n  <pre>${esc(clean)}</pre></section>`;\n} else {\n  corps += `<section aria-labelledby=\"resume-titre\">\n    <h2 id=\"resume-titre\">R\\u00e9sum\\u00e9 de la semaine</h2>\n    <p>${esc(data.resume)}</p></section>`;\n\n  const parAxe = { A: [], B: [], C: [] };\n  (data.items || []).forEach(it => {\n    (parAxe[it.axe] || (parAxe[it.axe] = [])).push(it);\n  });\n\n  [\"A\", \"B\", \"C\"].forEach(ax => {\n    const liste = parAxe[ax] || [];\n    if (!liste.length) return;\n    corps += `<section aria-labelledby=\"axe-${ax}\">\n      <h2 id=\"axe-${ax}\">${esc(axeNom[ax])}</h2>`;\n    liste.forEach(it => {\n      corps += `<article>\n        <h3>${esc(it.titre)}</h3>\n        <p class=\"meta\">\n          <span>Source\\u00a0: ${esc(it.source)}</span> \\u2014\n          <time datetime=\"${esc(it.date)}\">${esc(it.date)}</time> \\u2014\n          <span class=\"impact\">Impact\\u00a0: ${esc(impactLibelle[it.impact_projet] || it.impact_projet)}</span> \\u2014\n          <span>Pertinence\\u00a0: ${esc(it.pertinence)}/3</span>\n        </p>\n        <p>${esc(it.resume)}</p>`;\n      if (it.lien) {\n        corps += `<p><a href=\"${esc(it.lien)}\">Consulter «\\u00a0${esc(it.titre)}\\u00a0» sur le site de la source</a></p>`;\n      }\n      corps += `</article>`;\n    });\n    corps += `</section>`;\n  });\n\n  if ((data.ecartes || []).length) {\n    corps += `<section aria-labelledby=\"ecartes-titre\">\n      <h2 id=\"ecartes-titre\">Articles \\u00e9cart\\u00e9s (hors p\\u00e9rim\\u00e8tre ou faible pertinence)</h2><ul>`;\n    data.ecartes.forEach(t => corps += `<li>${esc(t)}</li>`);\n    corps += `</ul></section>`;\n  }\n}\n\nconst html = `<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>Synth\\u00e8se de veille \\u2014 Alimendo \\u2014 ${aujourdHui}</title>\n<style>\n  body { font-family: system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif; max-width: 60rem; margin: 0 auto; padding: 1.5rem; color: #1a1a1a; background: #fff; line-height: 1.6; }\n  h1 { font-size: 1.75rem; border-bottom: 3px solid #7a1f5c; padding-bottom: .5rem; }\n  h2 { font-size: 1.3rem; margin-top: 2rem; color: #7a1f5c; }\n  h3 { font-size: 1.1rem; margin-bottom: .25rem; }\n  article { border-left: 4px solid #c9c9c9; padding-left: 1rem; margin: 1.25rem 0; }\n  .meta { font-size: .9rem; color: #3a3a3a; margin: .25rem 0 .5rem; }\n  .impact { font-weight: 600; }\n  a { color: #0b4f96; }\n  a:focus, a:hover { outline: 2px solid #0b4f96; outline-offset: 2px; }\n  footer { margin-top: 3rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: .85rem; color: #444; }\n  pre { white-space: pre-wrap; background: #f4f4f4; padding: 1rem; border-radius: 4px; }\n</style>\n</head>\n<body>\n<header>\n  <h1>Synth\\u00e8se de veille \\u2014 Alimendo</h1>\n  <p>Semaine du ${aujourdHui}. Projet \\u00e9tudiant \\u2014 veille technique et r\\u00e9glementaire (comp\\u00e9tences A3 / C6).</p>\n</header>\n<main>\n${corps}\n</main>\n<footer>\n  <p>Document g\\u00e9n\\u00e9r\\u00e9 automatiquement \\u00e0 partir des flux RSS surveill\\u00e9s, puis relu manuellement.\n  Les informations proviennent des sources cit\\u00e9es ; elles ne constituent pas un conseil m\\u00e9dical.</p>\n</footer>\n</body>\n</html>`;\n\nreturn [{ json: { html, fichier: `veille-${aujourdHui}.html` } }];\n"
+      },
+      "id": "b200ad89-fb58-4f4e-8063-0dbc9ae33077",
+      "name": "Generer HTML accessible",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "html",
+        "options": {
+          "fileName": "={{ $json.fichier }}"
+        }
+      },
+      "id": "dee3e6de-b641-4dd8-88c8-49ea985298e7",
+      "name": "Fichier HTML",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1408,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.anses.fr/fr/content/actualites?field_thematique_target_id=2142&field_type_actualite_target_id=All",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "3fd81880-8ca9-49da-b39b-18894f8015ff",
+      "name": "ANSES - page HTML",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -304,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "articles",
+              "cssSelector": ".views-row",
+              "returnValue": "html",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "299fe79b-be66-4c15-a9d9-9980cc23da26",
+      "name": "ANSES - decouper articles",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -80,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recoit un tableau de blocs HTML (un par article) depuis le noeud HTML,\n// en extrait titre / lien / date / resume, au meme format que le noeud RSS.\nconst arr = $json.articles || [];\nconst items = [];\n\nfor (const html of arr) {\n  // Lien vers l'article\n  const linkM = html.match(/href=\"(https?:\\/\\/www\\.anses\\.fr)?(\\/fr\\/content\\/[^\"?#]+)\"/);\n  const link = linkM ? \"https://www.anses.fr\" + linkM[2] : \"\";\n\n  // Titre : d'abord le <h3>, sinon l'attribut alt de l'image\n  let title = \"\";\n  const h3M = html.match(/<h3[^>]*>([\\s\\S]*?)<\\/h3>/i);\n  if (h3M) title = h3M[1].replace(/<[^>]+>/g, \"\").replace(/\\s+/g, \" \").trim();\n  if (!title) {\n    const altM = html.match(/alt=\"([^\"]+)\"/);\n    if (altM) title = altM[1].trim();\n  }\n\n  // Date au format JJ/MM/AAAA -> AAAA-MM-JJ\n  const dM = html.match(/(\\d{2})\\/(\\d{2})\\/(\\d{4})/);\n  const iso = dM ? `${dM[3]}-${dM[2]}-${dM[1]}` : \"\";\n\n  // Resume : premier paragraphe\n  let teaser = \"\";\n  const pM = html.match(/<p[^>]*>([\\s\\S]*?)<\\/p>/i);\n  if (pM) teaser = pM[1].replace(/<[^>]+>/g, \" \").replace(/\\s+/g, \" \").trim();\n\n  if (link && title) {\n    items.push({ json: {\n      title,\n      link,\n      isoDate: iso,\n      pubDate: iso,\n      contentSnippet: teaser,\n      content: teaser\n    }});\n  }\n}\n\nreturn items;\n"
+      },
+      "id": "910a9a56-51f0-4a38-8c95-e9ac921a654e",
+      "name": "ANSES - normaliser",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        128,
+        176
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "30a37f15-bb5c-4a22-936f-f37403de3508",
+      "name": "Fusionner flux",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        432,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Lancer la veille": {
+      "main": [
+        [
+          {
+            "node": "Flux a surveiller",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ANSES - page HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flux a surveiller": {
+      "main": [
+        [
+          {
+            "node": "Lire les flux RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les flux RSS": {
+      "main": [
+        [
+          {
+            "node": "Fusionner flux",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrer 7 jours + corpus": {
+      "main": [
+        [
+          {
+            "node": "Synthese IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Synthese IA": {
+      "main": [
+        [
+          {
+            "node": "Generer HTML accessible",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Synthese IA",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generer HTML accessible": {
+      "main": [
+        [
+          {
+            "node": "Fichier HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ANSES - page HTML": {
+      "main": [
+        [
+          {
+            "node": "ANSES - decouper articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ANSES - decouper articles": {
+      "main": [
+        [
+          {
+            "node": "ANSES - normaliser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ANSES - normaliser": {
+      "main": [
+        [
+          {
+            "node": "Fusionner flux",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Fusionner flux": {
+      "main": [
+        [
+          {
+            "node": "Filtrer 7 jours + corpus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "755bbaaf-6c70-4eb9-b45a-ec06099bf8a8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "db1e19135565ae4c11c6d69cebb477d5fa8387d7525b70e3108282b00a32f05f"
+  },
+  "nodeGroups": [],
+  "id": "f6gG1jXNVls2J71X",
+  "tags": []
+}
