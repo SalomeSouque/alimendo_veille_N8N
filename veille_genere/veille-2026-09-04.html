@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Synthèse de veille — Alimendo — 2026-09-04</title>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; max-width: 60rem; margin: 0 auto; padding: 1.5rem; color: #1a1a1a; background: #fff; line-height: 1.6; }
+  h1 { font-size: 1.75rem; border-bottom: 3px solid #7a1f5c; padding-bottom: .5rem; }
+  h2 { font-size: 1.3rem; margin-top: 2rem; color: #7a1f5c; }
+  h3 { font-size: 1.1rem; margin-bottom: .25rem; }
+  article { border-left: 4px solid #c9c9c9; padding-left: 1rem; margin: 1.25rem 0; }
+  .meta { font-size: .9rem; color: #3a3a3a; margin: .25rem 0 .5rem; }
+  .impact { font-weight: 600; }
+  a { color: #0b4f96; }
+  a:focus, a:hover { outline: 2px solid #0b4f96; outline-offset: 2px; }
+  footer { margin-top: 3rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: .85rem; color: #444; }
+  pre { white-space: pre-wrap; background: #f4f4f4; padding: 1rem; border-radius: 4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Synthèse de veille — Alimendo</h1>
+  <p>Semaine du 2026-09-04. Projet étudiant — veille technique et réglementaire (compétences A3 / C6).</p>
+</header>
+<main>
+<section aria-labelledby="resume-titre">
+    <h2 id="resume-titre">Résumé de la semaine</h2>
+    <p>La période est marquée par des décisions d'autorités de contrôle (CNIL, DPC irlandaise) sanctionnant des manquements à la sécurité des données de santé sous le RGPD, ainsi que par la sortie de la version 1.4.0 de LangChain introduisant le support du Model Context Protocol (MCP). Côté scientifique, des travaux apportent des éclairages sur l'impact de certains régimes et édulcorants sur l'inflammation et le microbiote.</p></section><section aria-labelledby="axe-A">
+      <h2 id="axe-A">Axe A — Service d'IA intégré</h2><article>
+        <h3>Publication de LangChain 1.4.0 et support natif du Model Context Protocol (MCP)</h3>
+        <p class="meta">
+          <span>Source : https://github.com/langchain-ai/langchain</span> —
+          <time datetime="2026-09-03">2026-09-03</time> —
+          <span class="impact">Impact : À surveiller</span> —
+          <span>Pertinence : 3/3</span>
+        </p>
+        <p>La version 1.4.0 de LangChain introduit l'espace de noms officiel `langchain.mcp` et l'outil `MCPAdapter` pour convertir des serveurs MCP directement en outils compatibles avec les agents LangChain.</p><p><a href="https://github.com/langchain-ai/langchain/releases/tag/langchain%3D%3D1.4.0">Consulter « Publication de LangChain 1.4.0 et support natif du Model Context Protocol (MCP) » sur le site de la source</a></p></article><article>
+        <h3>Versions de correctifs et de sécurité pour la plateforme d'automatisation n8n</h3>
+        <p class="meta">
+          <span>Source : https://github.com/n8n-io/n8n</span> —
+          <time datetime="2026-09-04">2026-09-04</time> —
+          <span class="impact">Impact : À surveiller</span> —
+          <span>Pertinence : 3/3</span>
+        </p>
+        <p>Les dernières versions de n8n (notamment 2.37.10 et 2.38.3) apportent des correctifs sur la gestion du nettoyage des tâches rejetées et des mises à jour de dépendances pour corriger des vulnérabilités de sécurité.</p><p><a href="https://github.com/n8n-io/n8n/releases/tag/stable">Consulter « Versions de correctifs et de sécurité pour la plateforme d'automatisation n8n » sur le site de la source</a></p></article><article>
+        <h3>Ouverture du projet zg (zvec-grep) par l'équipe Qwen pour la recherche hybride local-first</h3>
+        <p class="meta">
+          <span>Source : https://www.marktechpost.com</span> —
+          <time datetime="2026-09-02">2026-09-02</time> —
+          <span class="impact">Impact : À surveiller</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>L'équipe de Qwen a publié sous licence Apache 2.0 l'outil `zg`, une couche de recherche locale combinant recherche textuelle brute, BM25 et recherche vectorielle sous une interface unique.</p><p><a href="https://www.marktechpost.com/2026/09/02/qwen-developers-open-sources-zg-zvec-grep-a-local-first-search-layer-unifying-ripgrep-bm25-and-vector-search/">Consulter « Ouverture du projet zg (zvec-grep) par l'équipe Qwen pour la recherche hybride local-first » sur le site de la source</a></p></article><article>
+        <h3>NVIDIA publie Switchyard pour le routage et la conversion d'API de LLM</h3>
+        <p class="meta">
+          <span>Source : https://www.marktechpost.com</span> —
+          <time datetime="2026-09-02">2026-09-02</time> —
+          <span class="impact">Impact : Aucun impact</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>NVIDIA a mis en open source le projet Switchyard sous licence Apache 2.0, un proxy écrit en Rust conçu pour router et traduire les requêtes entre les formats d'API OpenAI, Anthropic et d'autres moteurs d'inférence.</p><p><a href="https://www.marktechpost.com/2026/09/02/nvidia-releases-switchyard-rust-proxy-llm-traffic-openai-anthropic-api-translation/">Consulter « NVIDIA publie Switchyard pour le routage et la conversion d'API de LLM » sur le site de la source</a></p></article><article>
+        <h3>Publication de la version de développement Chroma 1.5.10.dev275</h3>
+        <p class="meta">
+          <span>Source : https://github.com/chroma-core/chroma</span> —
+          <time datetime="2026-09-03">2026-09-03</time> —
+          <span class="impact">Impact : Aucun impact</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>Une build de développement intermédiaire (1.5.10.dev275) a été publiée pour la base de données vectorielle Chroma sur son dépôt principal.</p><p><a href="https://github.com/chroma-core/chroma/releases/tag/latest">Consulter « Publication de la version de développement Chroma 1.5.10.dev275 » sur le site de la source</a></p></article></section><section aria-labelledby="axe-B">
+      <h2 id="axe-B">Axe B — Cadre réglementaire</h2><article>
+        <h3>Sanction de la CNIL de 500 000 euros pour défaut de sécurité sur des données de santé</h3>
+        <p class="meta">
+          <span>Source : https://www.cnil.fr</span> —
+          <time datetime="2026-09-03">2026-09-03</time> —
+          <span class="impact">Impact : À surveiller</span> —
+          <span>Pertinence : 3/3</span>
+        </p>
+        <p>La CNIL a prononcé une amende de 500 000 euros à l'encontre de l'Hôpital Privé de la Loire pour des mesures de sécurité insuffisantes dans la protection des données de santé de ses patients.</p><p><a href="https://www.cnil.fr/fr/sanction-hopital-prive-loire">Consulter « Sanction de la CNIL de 500 000 euros pour défaut de sécurité sur des données de santé » sur le site de la source</a></p></article><article>
+        <h3>Décision de l'autorité irlandaise (DPC) concernant le Health Service Executive</h3>
+        <p class="meta">
+          <span>Source : https://www.edpb.europa.eu</span> —
+          <time datetime="2026-09-03">2026-09-03</time> —
+          <span class="impact">Impact : Aucun impact</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>L'autorité irlandaise de protection des données a finalisé une enquête infligeant une amende et des mesures correctives au système de santé public (HSE) pour des failles de sécurité et des manquements aux obligations de notification sous le RGPD.</p><p><a href="https://www.edpb.europa.eu/news/data-protection-commission-announces-final-decision-following-inquiry-into-the-health-service_en">Consulter « Décision de l'autorité irlandaise (DPC) concernant le Health Service Executive » sur le site de la source</a></p></article></section><section aria-labelledby="axe-C">
+      <h2 id="axe-C">Axe C — État de l'art scientifique</h2><article>
+        <h3>Impact des édulcorants (sucralose et stévia) sur le microbiote et les marqueurs d'inflammation chez l'animal</h3>
+        <p class="meta">
+          <span>Source : https://www.sciencedaily.com</span> —
+          <time datetime="2026-08-31">2026-08-31</time> —
+          <span class="impact">Impact : À surveiller</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>Une étude menée chez la souris observe que le sucralose et la stévia modifient la composition du microbiote intestinal et réduisent certains composés bactériens bénéfiques, tout en influençant des gènes liés à l'inflammation métabolique.</p><p><a href="https://www.sciencedaily.com/releases/2026/08/260830000019.htm">Consulter « Impact des édulcorants (sucralose et stévia) sur le microbiote et les marqueurs d'inflammation chez l'animal » sur le site de la source</a></p></article><article>
+        <h3>Évaluation du régime cétogène comparé aux régimes méditerranéen et hypocalorique dans la stéatose hépatique</h3>
+        <p class="meta">
+          <span>Source : https://www.sciencedaily.com</span> —
+          <time datetime="2026-08-29">2026-08-29</time> —
+          <span class="impact">Impact : À surveiller</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>Un essai clinique portant sur des personnes en situation d'obésité ou de prédiabète montre une réduction de la graisse hépatique supérieure sous régime cétogène (67 %) par rapport aux régimes méditerranéen ou hypocalorique (45 %).</p><p><a href="https://www.sciencedaily.com/releases/2026/08/260828082327.htm">Consulter « Évaluation du régime cétogène comparé aux régimes méditerranéen et hypocalorique dans la stéatose hépatique » sur le site de la source</a></p></article></section><section aria-labelledby="ecartes-titre">
+      <h2 id="ecartes-titre">Articles écartés (hors périmètre ou faible pertinence)</h2><ul><li>Ordre du jour de la séance plénière du 3 septembre 2026</li><li>Participez aux Rencontres Informatique &amp; Libertés le 29 septembre 2026</li><li>De la grossesse à l’arrivée de bébé, avec sérénité - Alimentation, activité physique et bien-être</li><li>A longer exhale may push your brain toward bolder decisions</li><li>Stanford scientists discover a seafood that can reverse signs of aging</li><li>Too much coffee may weaken bones, study finds</li><li>Obesity leaves a lasting memory in immune cells</li><li>Long-term melatonin use linked to 90% higher heart failure risk</li><li>Researchers unveil sustainable spirulina solution to vitamin B12 deficiency</li><li>Your waist size may reveal health risks BMI misses</li><li>À New York, l’intelligence artificielle bannie des écoles jusqu’à la troisième</li><li>Anthropic lance son détecteur de contenus IA, mais il a une grosse limite</li><li>Même les dirigeants de Microsoft en ont assez des contenus générés par IA</li><li>L’Europe impose de nouvelles règles à ChatGPT et OpenAI a quatre mois pour s’adapter</li><li>Le Pentagone a désormais ses propres versions de ChatGPT et Grok</li><li>Face aux États-Unis, la Russie veut se rapprocher de la Chine dans l’intelligence artificielle</li><li>Bill Gates était l’un des grands optimistes de l’IA, son discours vient radicalement de changer</li><li>Perplexity Open Sources Lily: A Rust + Metal Inference Engine for Qwen3.6-35B-A3B on Apple Silicon</li><li>Keenable AI Open-Sources NEEDLE: A Live Search Benchmark That Rebuilds Its Query Set Every Hour</li><li>Google AI Releases TimesFM-3: A 330M Parameter Zero-Shot Foundation Model For Multivariate Time Series Forecasting</li><li>OpenClaw Releases OpenClaw 2.0: Guided Model Setup, 575 ms Control UI Startup, and One Trust Boundary Per Gateway</li><li>Google AI Introduces EnvHarness: A Programmable Layer That Turns Static Agent Environments Into Adaptive Training Worlds</li><li>Vercel AI Open-Sources vgpu: A TypeScript WebGPU Library for AI Agent Shaders</li><li>NeoMME: an efficient Multimodal-native and Multilingual Encoder</li><li>Fine-tuning a 350M Model for Better Structured Outputs in 100 GRPO Steps</li><li>Give Your Coding Agents a Memory You Own</li><li>Training a coding model to paint watercolours with TRL and OpenEnv</li><li>Real-Time Intelligence with IBM Time Series Models on Confluent</li><li>BenchMIRT: What are LLM benchmarks actually measuring?</li><li>Introducing @huggingface/kernels: 200+ WebGPU Kernels for Local AI</li></ul></section>
+</main>
+<footer>
+  <p>Document généré automatiquement à partir des flux RSS surveillés, puis relu manuellement.
+  Les informations proviennent des sources citées ; elles ne constituent pas un conseil médical.</p>
+</footer>
+</body>
+</html>
