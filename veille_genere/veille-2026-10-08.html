@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Synthèse de veille — Alimendo — 2026-10-08</title>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; max-width: 60rem; margin: 0 auto; padding: 1.5rem; color: #1a1a1a; background: #fff; line-height: 1.6; }
+  h1 { font-size: 1.75rem; border-bottom: 3px solid #7a1f5c; padding-bottom: .5rem; }
+  h2 { font-size: 1.3rem; margin-top: 2rem; color: #7a1f5c; }
+  h3 { font-size: 1.1rem; margin-bottom: .25rem; }
+  article { border-left: 4px solid #c9c9c9; padding-left: 1rem; margin: 1.25rem 0; }
+  .meta { font-size: .9rem; color: #3a3a3a; margin: .25rem 0 .5rem; }
+  .impact { font-weight: 600; }
+  a { color: #0b4f96; }
+  a:focus, a:hover { outline: 2px solid #0b4f96; outline-offset: 2px; }
+  footer { margin-top: 3rem; border-top: 1px solid #ccc; padding-top: 1rem; font-size: .85rem; color: #444; }
+  pre { white-space: pre-wrap; background: #f4f4f4; padding: 1rem; border-radius: 4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Synthèse de veille — Alimendo</h1>
+  <p>Semaine du 2026-10-08. Projet étudiant — veille technique et réglementaire (compétences A3 / C6).</p>
+</header>
+<main>
+<section aria-labelledby="resume-titre">
+    <h2 id="resume-titre">Résumé de la semaine</h2>
+    <p>La période est marquée par d'importants jalons réglementaires et scientifiques, dont une revue systématique remettant en cause l'efficacité des suppléments pour l'endométriose et une sanction record d'Uber sur le profilage. Côté technique, l'écosystème d'Alimendo est dynamisé par la sortie de Mistral Large 4 et plusieurs mises à jour correctives majeures de n8n et LangChain.</p></section><section aria-labelledby="axe-A">
+      <h2 id="axe-A">Axe A — Service d'IA intégré</h2><article>
+        <h3>Sortie de Mistral Large 4 en version préliminaire publique et mise à jour du client Python</h3>
+        <p class="meta">
+          <span>Source : Mistral AI</span> —
+          <time datetime="2026-10-06">2026-10-06</time> —
+          <span class="impact">Impact : Action requise</span> —
+          <span>Pertinence : 3/3</span>
+        </p>
+        <p>Mistral AI a lancé Mistral Large 4, un modèle multimodal Mixture-of-Experts doté d'une fenêtre de contexte de 1M de jetons, disponible en préversion publique avec des poids ouverts annoncés prochainement. En parallèle, le SDK python officiel de Mistral passe en version 3.1.0 et applique des changements majeurs en supprimant plusieurs points de terminaison d'API stables comme l'historique des exécutions.</p><p><a href="https://docs.mistral.ai/resources/changelogs">Consulter « Sortie de Mistral Large 4 en version préliminaire publique et mise à jour du client Python » sur le site de la source</a></p></article><article>
+        <h3>Mises à jour de n8n (versions 2.43.x et 2.42.x) : corrections et améliorations de l'assistant IA</h3>
+        <p class="meta">
+          <span>Source : GitHub (n8n)</span> —
+          <time datetime="2026-10-08">2026-10-08</time> —
+          <span class="impact">Impact : À surveiller</span> —
+          <span>Pertinence : 3/3</span>
+        </p>
+        <p>Les récentes versions de n8n corrigent des anomalies affectant l'intégration des assistants auto-hébergés utilisant des modèles tiers compatibles avec l'API OpenAI. Elles apportent également des correctifs d'interface utilisateur pour le n8n Assistant et optimisent le cache du prompt système de l'agent builder.</p><p><a href="https://github.com/n8n-io/n8n/releases/tag/n8n%402.43.2">Consulter « Mises à jour de n8n (versions 2.43.x et 2.42.x) : corrections et améliorations de l'assistant IA » sur le site de la source</a></p></article><article>
+        <h3>Sortie de nouvelles versions mineures pour LangChain (Core 1.6.7, Text Splitters 1.1.3, HuggingFace 1.2.3)</h3>
+        <p class="meta">
+          <span>Source : GitHub (LangChain)</span> —
+          <time datetime="2026-10-07">2026-10-07</time> —
+          <span class="impact">Impact : À surveiller</span> —
+          <span>Pertinence : 3/3</span>
+        </p>
+        <p>L'écosystème LangChain a publié des mises à jour correctives pour ses briques fondamentales. Celles-ci résolvent des anomalies d'inspection de signatures de fonctions et d'intégration d'API tierces, et optimisent les performances globales de découpage de texte de `langchain-text-splitters` et l'usage de `langchain-huggingface`.</p><p><a href="https://github.com/langchain-ai/langchain/releases/tag/langchain-core%3D%3D1.6.7">Consulter « Sortie de nouvelles versions mineures pour LangChain (Core 1.6.7, Text Splitters 1.1.3, HuggingFace 1.2.3) » sur le site de la source</a></p></article><article>
+        <h3>Sortie de pplx-embed-v2-late, de nouveaux modèles d'embeddings open-source par Perplexity AI</h3>
+        <p class="meta">
+          <span>Source : MarkTechPost</span> —
+          <time datetime="2026-10-08">2026-10-08</time> —
+          <span class="impact">Impact : À surveiller</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>Perplexity AI a mis en ligne pplx-embed-v2-late, une famille de modèles d'embeddings sous licence MIT, déclinée en versions 0.6B pour l'exécution locale et 9B pour les index complexes. Ces modèles d'embeddings auto-hébergeables affichent d'excellents scores sur les benchmarks de recherche documentaire.</p><p><a href="https://www.marktechpost.com/2026/10/07/perplexity-ai-releases-pplx-embed-v2-late-a-0-6b-edge-model-and-a-9b-model-scoring-92-4-on-madqa/">Consulter « Sortie de pplx-embed-v2-late, de nouveaux modèles d'embeddings open-source par Perplexity AI » sur le site de la source</a></p></article><article>
+        <h3>Liquid AI publie ses modèles décisionnels multimodaux open-weight d1 et d1-omni</h3>
+        <p class="meta">
+          <span>Source : HuggingFace (LiquidAI)</span> —
+          <time datetime="2026-10-07">2026-10-07</time> —
+          <span class="impact">Impact : Aucun impact</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>Liquid AI a introduit sa gamme d'architectures open-weight Open d1, optimisée pour un fonctionnement local rapide. Conçus pour évaluer du texte, de l'audio ou des images, ces modèles renvoient directement des probabilités calibrées et des décisions typées en une seule étape d'inférence, sans génération de texte.</p><p><a href="https://huggingface.co/blog/LiquidAI/open-d1">Consulter « Liquid AI publie ses modèles décisionnels multimodaux open-weight d1 et d1-omni » sur le site de la source</a></p></article><article>
+        <h3>Google DeepMind publie EmbeddingGemma 2, un modèle d'embedding multimodal open-source</h3>
+        <p class="meta">
+          <span>Source : MarkTechPost</span> —
+          <time datetime="2026-10-06">2026-10-06</time> —
+          <span class="impact">Impact : Aucun impact</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>Google DeepMind a rendu disponible EmbeddingGemma 2 (740M) sous licence Apache 2.0. Ce modèle projette cinq typologies distinctes d'entrées dans un espace vectoriel de dimension 768, simplifiant l'intégration de données multimodales au sein des applications et des bases de données vectorielles.</p><p><a href="https://www.marktechpost.com/2026/10/06/google-deepmind-releases-embeddinggemma-2-a-740m-open-multimodal-embedding-model-built-on-gemma-4/">Consulter « Google DeepMind publie EmbeddingGemma 2, un modèle d'embedding multimodal open-source » sur le site de la source</a></p></article><article>
+        <h3>AWS Strands Labs publie Strands Decider 2B sous licence Apache-2.0</h3>
+        <p class="meta">
+          <span>Source : MarkTechPost</span> —
+          <time datetime="2026-10-02">2026-10-02</time> —
+          <span class="impact">Impact : Aucun impact</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>AWS a publié Strands Decider 2B, un modèle décisionnel entraîné sur Qwen3.5-2B-Base. Sa faible latence (médiane de 115 ms) lui permet de réaliser du routage rapide d'agents ou de la sélection d'outils via des probabilités probabilistes en une seule étape, excluant toute génération de texte.</p><p><a href="https://www.marktechpost.com/2026/10/01/aws-strands-labs-releases-strands-decider-2b/">Consulter « AWS Strands Labs publie Strands Decider 2B sous licence Apache-2.0 » sur le site de la source</a></p></article></section><section aria-labelledby="axe-B">
+      <h2 id="axe-B">Axe B — Cadre réglementaire</h2><article>
+        <h3>Dutch DPA fines Uber EUR 824 990 000 for unlawful automated decision-making and insufficient information on profiling</h3>
+        <p class="meta">
+          <span>Source : EDPB</span> —
+          <time datetime="2026-10-08">2026-10-08</time> —
+          <span class="impact">Impact : À surveiller</span> —
+          <span>Pertinence : 3/3</span>
+        </p>
+        <p>L'autorité néerlandaise de protection des données a infligé une amende record à Uber pour l'usage de décisions entièrement automatisées et un manque de transparence sur ses méthodes de profilage. Cette décision souligne l'application stricte de l'article 22 du RGPD par les régulateurs européens concernant l'automatisation sans intervention humaine.</p><p><a href="https://www.edpb.europa.eu/news/dutch-dpa-fines-uber-eur-824-990-000-for-unlawful-automated-decision-making-and-insufficient_en">Consulter « Dutch DPA fines Uber EUR 824 990 000 for unlawful automated decision-making and insufficient information on profiling » sur le site de la source</a></p></article><article>
+        <h3>Violations de données personnelles : dans quels cas peut-on être indemnisé ?</h3>
+        <p class="meta">
+          <span>Source : CNIL</span> —
+          <time datetime="2026-10-02">2026-10-02</time> —
+          <span class="impact">Impact : Aucun impact</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>La CNIL rappelle les critères juridiques encadrant l'indemnisation des personnes physiques ayant subi un préjudice à la suite d'un manquement au RGPD. La note précise que le pouvoir d'octroyer cette réparation financière appartient au juge judiciaire et non à l'autorité de contrôle elle-même.</p><p><a href="https://www.cnil.fr/fr/violations-de-donnees-personnelles-cas-indemnite">Consulter « Violations de données personnelles : dans quels cas peut-on être indemnisé ? » sur le site de la source</a></p></article><article>
+        <h3>Sanctions des autorités suédoise et grecque pour des mesures de sécurité insuffisantes et défauts de gestion des sous-traitants</h3>
+        <p class="meta">
+          <span>Source : EDPB</span> —
+          <time datetime="2026-10-08">2026-10-08</time> —
+          <span class="impact">Impact : À surveiller</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>L'autorité suédoise a sanctionné le prestataire informatique Miljödata pour des mesures de sécurité techniques inadéquates (Article 32) suite à une faille exposant 2,2 millions de personnes. Parallèlement, l'autorité grecque a pénalisé un ministère et son sous-traitant pour des violations similaires, soulignant l'importance de sécuriser l'ensemble de la chaîne de sous-traitance (Article 28).</p><p><a href="https://www.edpb.europa.eu/news/swedish-dpa-fines-miljodata-i-karlskrona-approximately-eur-160-000-for-insufficient-technical_en">Consulter « Sanctions des autorités suédoise et grecque pour des mesures de sécurité insuffisantes et défauts de gestion des sous-traitants » sur le site de la source</a></p></article><article>
+        <h3>Les textes de ChatGPT seront bientôt reconnaissables grâce à un filigrane invisible</h3>
+        <p class="meta">
+          <span>Source : Siècle Digital</span> —
+          <time datetime="2026-10-06">2026-10-06</time> —
+          <span class="impact">Impact : À surveiller</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>Pour se conformer aux obligations futures de l'AI Act dans l'Union européenne, ChatGPT s'apprête à introduire une technologie de filigrane invisible sur l'ensemble de ses générations de texte. Cette mesure s'inscrit dans un effort de transparence accru pour identifier les contenus synthétiques.</p><p><a href="https://siecledigital.fr/2026/10/06/les-textes-de-chatgpt-seront-bientot-reconnaissables-grace-a-un-filigrane-invisible/">Consulter « Les textes de ChatGPT seront bientôt reconnaissables grâce à un filigrane invisible » sur le site de la source</a></p></article><article>
+        <h3>Does the Nutri-Score 2023 algorithm provide consistent classification across European food supplies? A cross-sectional study using branded food composition data from 14 countries</h3>
+        <p class="meta">
+          <span>Source : Santé Publique France</span> —
+          <time datetime="2026-10-06">2026-10-06</time> —
+          <span class="impact">Impact : Aucun impact</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>Une étude transversale menée dans 14 pays de l'Union européenne démontre que l'algorithme révisé du Nutri-Score 2023 maintient une classification nutritionnelle cohérente à travers différents marchés alimentaires. Les classements obtenus s'avèrent alignés sur les recommandations nutritionnelles spécifiques de ces pays.</p><p><a href="https://www.santepubliquefrance.fr/nutrition-et-activite-physique/article/does-nutri-score-2023-algorithm-provide-consistent-classification-across-european-food-supplies-a">Consulter « Does the Nutri-Score 2023 algorithm provide consistent classification across European food supplies? A cross-sectional study using branded food composition data from 14 countries » sur le site de la source</a></p></article></section><section aria-labelledby="axe-C">
+      <h2 id="axe-C">Axe C — État de l'art scientifique</h2><article>
+        <h3>A systematic review of restorative reproductive medicine practices</h3>
+        <p class="meta">
+          <span>Source : PubMed</span> —
+          <time datetime="2026-10-02">2026-10-02</time> —
+          <span class="impact">Impact : À surveiller</span> —
+          <span>Pertinence : 3/3</span>
+        </p>
+        <p>Une revue systématique conclut que les preuves cliniques sont insuffisantes pour recommander l'utilisation de suppléments vitaminiques ou nutritionnels au-delà des recommandations des guides cliniques pour l'endométriose. Elle souligne également un manque de preuves pour soutenir l'efficacité de la laparoscopie opératoire pour l'endométriose chez les patientes souffrant d'infertilité.</p><p><a href="https://pubmed.ncbi.nlm.nih.gov/42825161/?utm_source=Other&amp;utm_medium=rss&amp;utm_campaign=pubmed-2&amp;utm_content=1buXLhBHRRRx2fCp9fR-aEfCojog81igfn6XkaYUsBU280OsPz&amp;fc=20260821042913&amp;ff=20261008113530&amp;v=2.20.1">Consulter « A systematic review of restorative reproductive medicine practices » sur le site de la source</a></p></article><article>
+        <h3>Scientists warn a popular vitamin D supplement may have a hidden downside</h3>
+        <p class="meta">
+          <span>Source : ScienceDaily</span> —
+          <time datetime="2026-10-08">2026-10-08</time> —
+          <span class="impact">Impact : À surveiller</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>De nouveaux travaux indiquent que la supplémentation sous forme de vitamine D2 pourrait diminuer de manière inattendue les niveaux corporels en vitamine D3. La vitamine D3, produite naturellement par l'exposition solaire, s'avère plus efficace que la D2 pour renforcer la réponse immunitaire globale.</p><p><a href="https://www.sciencedaily.com/releases/2026/10/261007232940.htm">Consulter « Scientists warn a popular vitamin D supplement may have a hidden downside » sur le site de la source</a></p></article><article>
+        <h3>Taking antibiotics? Sugar may be making the damage worse</h3>
+        <p class="meta">
+          <span>Source : ScienceDaily</span> —
+          <time datetime="2026-10-07">2026-10-07</time> —
+          <span class="impact">Impact : Aucun impact</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>Une étude associe la consommation de produits sucrés pendant la prise d'antibiotiques à une altération plus sévère de la composition du microbiote intestinal et à une prolifération accrue de bactéries indésirables. Les chercheurs suggèrent d'ajuster l'apport en sucres simples pendant ces traitements, bien que des essais cliniques humains restent requis.</p><p><a href="https://www.sciencedaily.com/releases/2026/10/261007042059.htm">Consulter « Taking antibiotics? Sugar may be making the damage worse » sur le site de la source</a></p></article><article>
+        <h3>Not all trans fats are bad, major review finds</h3>
+        <p class="meta">
+          <span>Source : ScienceDaily</span> —
+          <time datetime="2026-10-08">2026-10-08</time> —
+          <span class="impact">Impact : À surveiller</span> —
+          <span>Pertinence : 2/3</span>
+        </p>
+        <p>Une analyse de 22 études montre que les acides gras trans naturellement présents dans les produits laitiers n'augmentent pas le risque cardiovasculaire ou de diabète de type 2. Contrairement aux acides gras trans d'origine industrielle issus d'huiles partiellement hydrogénées, les acides gras trans laitiers n'ont pas d'effet délétère significatif sur le bilan lipidique.</p><p><a href="https://www.sciencedaily.com/releases/2026/10/261006234505.htm">Consulter « Not all trans fats are bad, major review finds » sur le site de la source</a></p></article></section><section aria-labelledby="ecartes-titre">
+      <h2 id="ecartes-titre">Articles écartés (hors périmètre ou faible pertinence)</h2><ul><li>Clôture de l’injonction prononcée à l’encontre de FRANCE TRAVAIL</li><li>Accompagnement des personnes présentant une surdicécité en ESSMS – Note de cadrage</li><li>Prévention, repérage et accompagnement des mineurs en situation de prostitution relevant de la protection de l’enfance – Note de cadrage</li><li>SYSTEME MYOBOCK</li><li>Eating jetlag based on meal timing discrepancies and risk of cardiovascular disease using the prospective cohort NutriNet-Santé</li><li>Development and Content Validation of The Health Promoting Sports Club Observational Tool</li><li>De la grossesse à l’arrivée de bébé, avec sérénité - Alimentation, activité physique et bien-être</li><li>Just 7 days of strength training started shrinking fat cells in mice</li><li>Scientists reveal what seven days of fasting does to the human body</li><li>MIT scientists find a hidden cancer risk of the keto diet</li><li>Diet drinks work as well as water for weight loss, major trial finds</li><li>Leucine does more than build muscle. It powers up your cells</li><li>Vitamin D drug may help crack pancreatic cancer’s protective shield</li><li>Your gut may be making a molecule that raises Alzheimer’s risk</li><li>Vitamin C linked to fewer deaths in blood disorder trial</li><li>ChatGPT transforme ses réponses avec des visuels et des outils interactifs</li><li>Des agents IA d’OpenAI ont pris d’assaut Wikipédia avec des millions de requêtes</li><li>Google rémunère désormais certains sites utilisés pour générer ses réponses IA</li><li>ChatGPT va afficher des publicités pendant que vous générez des images</li><li>Les Français sont-ils prêts à laisser des agents IA agir à leur place ? Une étude révèle leurs inquiétudes</li><li>Arnaques, piratages… Sam Altman estime que certaines dérives de l’IA sont inévitables</li><li>Gemini va devenir beaucoup moins puissant pour les utilisateurs qui ne paient pas</li><li>Donald Trump remplace l’« IA » par la « super intelligence », Elon Musk le suit et renomme SpaceXAI</li><li>Anthropic débloque 100 millions de dollars pour former une nouvelle génération d’experts en IA</li><li>L’essor des agents IA fait exploser la demande pour une nouvelle compétence dans les banques</li><li>Séparée de Meta, Manus revient avec des agents IA capables de téléphoner et de payer</li><li>OpenAI dévoile Dots, ses nouveaux agents IA capables de gérer des projets</li><li>Meta AI Open-Sources Rebalancer: A C++ Assignment Solver That Runs About 40 Million Placement Problems a Day</li><li>Can an Open Model Do Security Research? Cantina’s apex-flash-1 Solves 40 of 60 Held-Out Bug Tasks</li><li>Aleph Alpha Releases Kolibri: A 78.1B Open-Weight English-German MoE Model With Only 3.46B Active Parameters</li><li>DeepSeek Harness v0.2 Brings Official Desktop Apps to Its Open-Source Agent Harness</li><li>Datalab Introduces OmniExtractBench to Fix Bias and Opacity in Extraction Benchmarks</li><li>Cloudflare Releases Clef and Clef-flash: Open-Weight Decision Models That Return Typed Probabilities Instead of Text</li><li>Introducing Falcon ASR</li><li>One Model Family, Two Gold-Level Results: Fine-Tuning Nemotron for IOI and IMO</li><li>The Agent Said It Was Done. The Database Disagreed.</li><li>Open-sourcing AstaBrief, the fast report-generation model in Asta</li><li>AutoSynthData: Generating Training Data for Enterprise Agents</li><li>Latest</li></ul></section>
+</main>
+<footer>
+  <p>Document généré automatiquement à partir des flux RSS surveillés, puis relu manuellement.
+  Les informations proviennent des sources citées ; elles ne constituent pas un conseil médical.</p>
+</footer>
+</body>
+</html>
